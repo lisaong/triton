@@ -22,6 +22,18 @@ dtypes_with_bfloat16 = dtypes + ['bfloat16']
 torch_dtypes = ['bool'] + int_dtypes + ['uint8'] + float_dtypes + ['bfloat16']
 
 
+def mock_gpu(fn):
+    """
+    Decorator to inject a fake device (the CPU) so that a missing HIP GPU won't
+    trigger an error.
+    """
+    def decorator(*args, **kwargs):
+        if not torch.cuda.is_available() and "device" in kwargs and kwargs["device"].startswith("cuda"):
+            kwargs["device"] = None
+        fn(*args, **kwargs)
+    return decorator
+
+
 def _bitwidth(dtype: str) -> int:
     # ex.: "int64" -> 64
     return int(re.search(r'(\d+)$', dtype).group(1))
@@ -55,6 +67,7 @@ def numpy_random(shape, dtype_str, rs: Optional[RandomState] = None, low=None, h
         raise RuntimeError(f'Unknown dtype {dtype_str}')
 
 
+# @mock_gpu
 def to_triton(x: np.ndarray, device='cuda', dst_type=None) -> Union[TensorWrapper, torch.Tensor]:
     '''
     Note: We need dst_type because the type of x can be different from dst_type.
