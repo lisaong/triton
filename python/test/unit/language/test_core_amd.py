@@ -139,7 +139,7 @@ def check_type_supported(dtype):
 def test_empty_kernel(dtype_x, device='cuda'):
     SIZE = 128
 
-    @triton.jit(cc=HIP_CC_ARCH)
+    @triton.jit(debug=True, cc=HIP_CC_ARCH)
     def kernel(X, SIZE: tl.constexpr):
         pass
     check_type_supported(dtype_x)

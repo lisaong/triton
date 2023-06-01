@@ -441,6 +441,7 @@ def jit(
     debug: Optional[bool] = None,
     noinline: Optional[bool] = None,
     interpret: Optional[bool] = None,
+    cc: Optional[bool] = None,
 ) -> Union[JITFunction[T], Callable[[T], JITFunction[T]]]:
     """
     Decorator for JIT-compiling a function using the Triton compiler.
@@ -472,6 +473,7 @@ def jit(
                 do_not_specialize=do_not_specialize,
                 debug=debug,
                 noinline=noinline,
+                cc=cc
             )
     if fn is not None:
         return decorator(fn)
