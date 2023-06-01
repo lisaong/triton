@@ -22,10 +22,13 @@ dtypes = int_dtypes + uint_dtypes + float_dtypes
 dtypes_with_bfloat16 = dtypes + ['bfloat16']
 torch_dtypes = ['bool'] + int_dtypes + ['uint8'] + float_dtypes + ['bfloat16']
 
+# to trigger cross compilation for inspecting the ROCm lowering pipeline
+HIP_CC_ARCH = ["", "gfx908", "+sramecc,-xnack"]
 
 def reset_cache(fn):
     """
     Decorator to reset the cache directory before running a test.
+    Useful for forcing compilation.
     """
     tmp_dir = os.path.join(os.getcwd(), ".tmp")
 
@@ -136,7 +139,7 @@ def check_type_supported(dtype):
 def test_empty_kernel(dtype_x, device='cuda'):
     SIZE = 128
 
-    @triton.jit
+    @triton.jit(cc=HIP_CC_ARCH)
     def kernel(X, SIZE: tl.constexpr):
         pass
     check_type_supported(dtype_x)

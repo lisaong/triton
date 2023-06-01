@@ -320,7 +320,7 @@ def {self.fn.__name__}({', '.join(self.arg_names)}, grid, num_warps=4, num_stage
         if callable(arg):
           raise TypeError(f"Callable constexpr at index {{i}} is not supported")
       if not self._call_hook(key, signature, device, constants, num_warps, num_stages, extern_libs, configs):
-        bin = triton.compile(self, signature=signature, device=device, constants=constants, num_warps=num_warps, num_stages=num_stages, extern_libs=extern_libs, configs=configs, debug=self.debug)
+        bin = triton.compile(self, signature=signature, device=device, constants=constants, num_warps=num_warps, num_stages=num_stages, extern_libs=extern_libs, configs=configs, debug=self.debug, cc=self.cc)
         if not warmup:
             bin.c_wrapper(grid_0, grid_1, grid_2, bin.num_warps, bin.shared, stream, bin.cu_function, triton.compiler.CompiledKernel.launch_enter_hook, triton.compiler.CompiledKernel.launch_exit_hook, bin, *args)
         self.cache[device][key] = bin
@@ -335,7 +335,8 @@ def {self.fn.__name__}({', '.join(self.arg_names)}, grid, num_warps=4, num_stage
         exec(src, scope)
         return scope[self.fn.__name__]
 
-    def __init__(self, fn, version=None, do_not_specialize=None, debug=None, noinline=None):
+    def __init__(self, fn, version=None, do_not_specialize=None, debug=None, noinline=None, cc=None):
+        self.cc = cc    # HACK: initiate cross compilation with existing JIT-based test infrastructure, remove when done with investigation
         self.fn = fn
         self.module = fn.__module__
         self.version = version
