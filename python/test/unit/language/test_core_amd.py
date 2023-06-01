@@ -1,4 +1,5 @@
 # flake8: noqa: F821,F841
+import functools
 import itertools
 import os
 import re
@@ -22,15 +23,22 @@ dtypes_with_bfloat16 = dtypes + ['bfloat16']
 torch_dtypes = ['bool'] + int_dtypes + ['uint8'] + float_dtypes + ['bfloat16']
 
 
-def mock_gpu(fn):
+def reset_cache(fn):
     """
-    Decorator to inject a fake device (the CPU) so that a missing HIP GPU won't
-    trigger an error.
+    Decorator to reset the cache directory before running a test.
     """
+    tmp_dir = os.path.join(os.getcwd(), ".tmp")
+
+    # functools.wraps allows pytest.mark.parameterize to introspect fn's arguments
+    @functools.wraps(fn)
     def decorator(*args, **kwargs):
-        if not torch.cuda.is_available() and "device" in kwargs and kwargs["device"].startswith("cuda"):
-            kwargs["device"] = None
+        import shutil
+        os.environ["TRITON_CACHE_DIR"] = tmp_dir
+        if os.path.exists(tmp_dir):
+            shutil.rmtree(tmp_dir)
+
         fn(*args, **kwargs)
+
     return decorator
 
 
@@ -67,7 +75,6 @@ def numpy_random(shape, dtype_str, rs: Optional[RandomState] = None, low=None, h
         raise RuntimeError(f'Unknown dtype {dtype_str}')
 
 
-# @mock_gpu
 def to_triton(x: np.ndarray, device='cuda', dst_type=None) -> Union[TensorWrapper, torch.Tensor]:
     '''
     Note: We need dst_type because the type of x can be different from dst_type.
@@ -125,6 +132,7 @@ def check_type_supported(dtype):
 
 
 @pytest.mark.parametrize("dtype_x", list(dtypes) + ["bfloat16"])
+@reset_cache
 def test_empty_kernel(dtype_x, device='cuda'):
     SIZE = 128
 

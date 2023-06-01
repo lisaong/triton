@@ -35,6 +35,7 @@
         "TRITON_DEBUG": "1",
         "LD_LIBRARY_PATH": "/opt/rocm/lib"
       },
+      "cwd": "${workspaceFolder}",
       // Comment out if don't want automatic builds
       // "preLaunchTask": "Build"
     }
