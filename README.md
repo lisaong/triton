@@ -86,3 +86,15 @@ Supported Platforms:
 Supported Hardware:
   * NVIDIA GPUs (Compute Capability 7.0+)
   * Under development: AMD GPUs, CPUs
+
+# ROCm
+
+```shell
+# rocm platform, hip toolchain
+curl -LO https://repo.radeon.com/amdgpu-install/5.4.3/ubuntu/jammy/amdgpu-install_5.4.50403-1_all.deb
+sudo apt install ./amdgpu-install_5.4.50403-1_all.deb 
+sudo amdgpu-install --usecase=rocmdev,hiplibsdk
+
+# pytorch
+pip install torch --index-url https://download.pytorch.org/whl/rocm5.4.2
+```
