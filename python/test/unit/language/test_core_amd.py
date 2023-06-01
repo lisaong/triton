@@ -23,7 +23,7 @@ dtypes_with_bfloat16 = dtypes + ['bfloat16']
 torch_dtypes = ['bool'] + int_dtypes + ['uint8'] + float_dtypes + ['bfloat16']
 
 # to trigger cross compilation for inspecting the ROCm lowering pipeline
-HIP_CC_ARCH = ["", "gfx908", "+sramecc,-xnack"]
+HIP_CC_ARCH = ["amdgcn-amd-amdhsa", "gfx908", "+sramecc,-xnack"] # MI100
 
 def reset_cache(fn):
     """
