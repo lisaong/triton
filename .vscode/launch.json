@@ -19,15 +19,13 @@
       "preLaunchTask": "Build"
     },
     {
-      "name": "Python: test_cppprinter",
+      "name": "Python: test_core_amd",
       "type": "python",
       "request": "launch",
       "module": "pytest",
       "console": "integratedTerminal",
       "args": [
-        "${workspaceFolder}/python/test/unit/compiler/test_cppprinter.py",
-        "-k",
-        "test_cpp_cc_rocm"
+        "${workspaceFolder}/python/test/unit/language/test_core_amd.py"
       ],
       "justMyCode": false,
       "env": {
@@ -36,7 +34,7 @@
         "LD_LIBRARY_PATH": "/opt/rocm/lib"
       },
       // Comment out if don't want automatic builds
-      "preLaunchTask": "Build"
+      // "preLaunchTask": "Build"
     }
   ]
 }
