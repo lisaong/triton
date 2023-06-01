@@ -34,7 +34,7 @@
         "LD_LIBRARY_PATH": "/opt/rocm/lib"
       },
       // Comment out if don't want automatic builds
-      // "preLaunchTask": "Build"
+      "preLaunchTask": "Build"
     }
   ]
 }
