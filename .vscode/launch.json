@@ -25,7 +25,9 @@
       "module": "pytest",
       "console": "integratedTerminal",
       "args": [
-        "${workspaceFolder}/python/test/unit/language/test_core_amd.py"
+        "${workspaceFolder}/python/test/unit/language/test_core_amd.py",
+        "-k",
+        "test_empty_kernel[int8]"
       ],
       "justMyCode": false,
       "env": {
@@ -34,7 +36,7 @@
         "LD_LIBRARY_PATH": "/opt/rocm/lib"
       },
       // Comment out if don't want automatic builds
-      "preLaunchTask": "Build"
+      // "preLaunchTask": "Build"
     }
   ]
 }
