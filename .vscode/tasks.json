@@ -1,0 +1,38 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "windows": {
+    "options": {
+      "env": {
+        "REL_WITH_DEB_INFO": "1",
+        "LLVM_SYSPATH": "${workspaceFolder}/../triton-llvm-releases/llvm-project/build/install"
+      }
+    }
+  },
+  "linux": {
+    "options": {
+      "env": {
+        "DEBUG": "1"
+      }
+    }
+  },
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "-m",
+        "pip",
+        "install",
+        "-vvv",
+        "-e",
+        "."
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/python",
+      }
+    }
+  ]
+}

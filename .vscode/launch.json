@@ -1,0 +1,42 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/python",
+        "TRITON_DEBUG": "1"
+      },
+      // Comment out if don't want automatic builds
+      "preLaunchTask": "Build"
+    },
+    {
+      "name": "Python: test_cppprinter",
+      "type": "python",
+      "request": "launch",
+      "module": "pytest",
+      "console": "integratedTerminal",
+      "args": [
+        "${workspaceFolder}/python/test/unit/compiler/test_cppprinter.py",
+        "-k",
+        "test_cpp_cc_rocm"
+      ],
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/python",
+        "TRITON_DEBUG": "1",
+        "LD_LIBRARY_PATH": "/opt/rocm/lib"
+      },
+      // Comment out if don't want automatic builds
+      "preLaunchTask": "Build"
+    }
+  ]
+}
