@@ -32,6 +32,11 @@
       ],
       "options": {
         "cwd": "${workspaceFolder}/python",
+        "env": {
+          "TRITON_USE_ROCM": "TRUE",
+          "DEBUG": "TRUE",
+          "TRITON_USE_ASSERT_ENABLED_LLVM": "TRUE",
+        }
       }
     }
   ]

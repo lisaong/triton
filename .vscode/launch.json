@@ -33,7 +33,8 @@
       "env": {
         "PYTHONPATH": "${workspaceFolder}/python",
         "TRITON_DEBUG": "1",
-        "LD_LIBRARY_PATH": "/opt/rocm/lib"
+        "LD_LIBRARY_PATH": "/opt/rocm/lib",
+        "AMDGCN_ENABLE_DUMP": "1",
       },
       "cwd": "${workspaceFolder}",
       // Comment out if don't want automatic builds
