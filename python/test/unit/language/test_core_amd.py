@@ -105,9 +105,10 @@ def check_type_supported(dtype):
     '''
     skip test if dtype is not supported on the current device
     '''
-    cc = torch.cuda.get_device_capability()
-    if cc[0] < 8 and (dtype is tl.bfloat16 or dtype == "bfloat16" or dtype is torch.bfloat16):
-        pytest.skip("bfloat16 is only supported on NVGPU with cc >= 80")
+    if dtype is tl.bfloat16 or dtype == "bfloat16" or dtype is torch.bfloat16:
+        cc = torch.cuda.get_device_capability()
+        if cc[0] < 8:
+            pytest.skip("bfloat16 is only supported on NVGPU with cc >= 80")
 
 
 @pytest.mark.parametrize("dtype_x", list(dtypes) + ["bfloat16"])
@@ -1052,9 +1053,12 @@ reduce_configs1 = [
 reduce2d_shapes = [(2, 32), (4, 32), (4, 128)]
 # TODO: fix and uncomment
 # , (32, 64), (64, 128)]
-if 'V100' in torch.cuda.get_device_name(0):
-    reduce2d_shapes += [(128, 256) and (32, 1024)]
-
+try:
+    if 'V100' in torch.cuda.get_device_name(0):
+        reduce2d_shapes += [(128, 256) and (32, 1024)]
+except RuntimeError as e:
+    print(f"Ignoring: {e}")
+    pass # no HIP GPUs are available
 
 reduce_configs2 = [
     (op, 'float32', shape, axis)
