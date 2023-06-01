@@ -76,7 +76,9 @@
       "args": [
         "${workspaceFolder}/python/test/unit/language/test_core_amd.py",
         "-k",
-        "test_empty_kernel[int8]"
+        // To list test cases: python -m pytest --collect-only -q test/unit/language/test_core_amd.py | grep doc
+        // "test_empty_kernel[int8]",
+        "test_dot[64-64-64-2-False-False-none-True-float32]"
       ],
       "justMyCode": false,
       "env": {
@@ -87,7 +89,7 @@
       },
       "cwd": "${workspaceFolder}",
       // Comment out if don't want automatic builds
-      "preLaunchTask": "Build"
+      // "preLaunchTask": "Build"
     },
   ]
 }

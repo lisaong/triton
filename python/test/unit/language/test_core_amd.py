@@ -148,12 +148,13 @@ def test_empty_kernel(dtype_x, device='cuda'):
 
 
 # generic test functions
+@reset_cache
 def _test_unary(dtype_x, expr, numpy_expr=None, device='cuda'):
     check_type_supported(dtype_x)  # early return if dtype_x is not supported
     SIZE = 128
     # define the kernel / launch-grid
 
-    @triton.jit
+    @triton.jit(debug=True, cc=HIP_CC_ARCH)
     def kernel(Z, X, SIZE: tl.constexpr):
         off = tl.arange(0, SIZE)
         x = tl.load(X + off)
