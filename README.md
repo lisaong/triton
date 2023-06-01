@@ -95,6 +95,7 @@ curl -LO https://repo.radeon.com/amdgpu-install/5.4.3/ubuntu/jammy/amdgpu-instal
 sudo apt install ./amdgpu-install_5.4.50403-1_all.deb 
 sudo amdgpu-install --usecase=rocmdev,hiplibsdk
 
-# pytorch
+# Optional: install pytorch with ROCm support only if a HIP GPU is available
+# if no HIP GPU is available, use the default pytorch
 pip install torch --index-url https://download.pytorch.org/whl/rocm5.4.2
 ```
