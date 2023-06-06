@@ -1,4 +1,5 @@
 # flake8: noqa: F821,F841
+import functools
 import itertools
 import os
 import re
@@ -20,6 +21,28 @@ float_dtypes = ['float16', 'float32', 'float64']
 dtypes = int_dtypes + uint_dtypes + float_dtypes
 dtypes_with_bfloat16 = dtypes + ['bfloat16']
 torch_dtypes = ['bool'] + int_dtypes + ['uint8'] + float_dtypes + ['bfloat16']
+
+# to trigger cross compilation for inspecting the ROCm lowering pipeline
+HIP_CC_ARCH = ["amdgcn-amd-amdhsa", "gfx908", "+sramecc,-xnack"] # MI100
+
+def reset_cache(fn):
+    """
+    Decorator to reset the cache directory before running a test.
+    Useful for forcing compilation.
+    """
+    tmp_dir = os.path.join(os.getcwd(), ".tmp")
+
+    # functools.wraps allows pytest.mark.parameterize to introspect fn's arguments
+    @functools.wraps(fn)
+    def decorator(*args, **kwargs):
+        import shutil
+        os.environ["TRITON_CACHE_DIR"] = tmp_dir
+        if os.path.exists(tmp_dir):
+            shutil.rmtree(tmp_dir)
+
+        fn(*args, **kwargs)
+
+    return decorator
 
 
 def _bitwidth(dtype: str) -> int:
@@ -105,16 +128,18 @@ def check_type_supported(dtype):
     '''
     skip test if dtype is not supported on the current device
     '''
-    cc = torch.cuda.get_device_capability()
-    if cc[0] < 8 and (dtype is tl.bfloat16 or dtype == "bfloat16" or dtype is torch.bfloat16):
-        pytest.skip("bfloat16 is only supported on NVGPU with cc >= 80")
+    if dtype is tl.bfloat16 or dtype == "bfloat16" or dtype is torch.bfloat16:
+        cc = torch.cuda.get_device_capability()
+        if cc[0] < 8:
+            pytest.skip("bfloat16 is only supported on NVGPU with cc >= 80")
 
 
 @pytest.mark.parametrize("dtype_x", list(dtypes) + ["bfloat16"])
+@reset_cache
 def test_empty_kernel(dtype_x, device='cuda'):
     SIZE = 128
 
-    @triton.jit
+    @triton.jit(debug=True, cc=HIP_CC_ARCH)
     def kernel(X, SIZE: tl.constexpr):
         pass
     check_type_supported(dtype_x)
@@ -128,7 +153,7 @@ def _test_unary(dtype_x, expr, numpy_expr=None, device='cuda'):
     SIZE = 128
     # define the kernel / launch-grid
 
-    @triton.jit
+    @triton.jit()
     def kernel(Z, X, SIZE: tl.constexpr):
         off = tl.arange(0, SIZE)
         x = tl.load(X + off)
@@ -1052,9 +1077,12 @@ reduce_configs1 = [
 reduce2d_shapes = [(2, 32), (4, 32), (4, 128)]
 # TODO: fix and uncomment
 # , (32, 64), (64, 128)]
-if 'V100' in torch.cuda.get_device_name(0):
-    reduce2d_shapes += [(128, 256) and (32, 1024)]
-
+try:
+    if 'V100' in torch.cuda.get_device_name(0):
+        reduce2d_shapes += [(128, 256) and (32, 1024)]
+except RuntimeError as e:
+    print(f"Ignoring: {e}")
+    pass # no HIP GPUs are available
 
 reduce_configs2 = [
     (op, 'float32', shape, axis)
@@ -1230,6 +1258,7 @@ def test_permute(dtype_str, shape, perm, device='cuda'):
                           for col_a in [True,False]
                           for col_b in [True,False]
                           for dtype in ['int8', 'float16', 'float32']])
+@reset_cache
 def test_dot(M, N, K, num_warps, col_a, col_b, epilogue, allow_tf32, dtype, device='cuda'):
     capability = torch.cuda.get_device_capability()
 
@@ -1255,7 +1284,7 @@ def test_dot(M, N, K, num_warps, col_a, col_b, epilogue, allow_tf32, dtype, devi
     torch.backends.cuda.matmul.allow_tf32 = allow_tf32
 
     # triton kernel
-    @triton.jit
+    @triton.jit(debug=True, cc=HIP_CC_ARCH)
     def kernel(X, stride_xm, stride_xk,
                Y, stride_yk, stride_yn,
                W, stride_wn, stride_wl,
