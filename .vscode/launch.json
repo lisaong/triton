@@ -14,7 +14,8 @@
         "pytest",
         "${workspaceFolder}/python/test/unit/language/test_core_amd.py",
         "-k",
-        "test_empty_kernel[int8]"
+        // "test_empty_kernel[int8]"
+        "test_dot[64-64-64-2-False-False-none-True-float32]"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",

@@ -148,13 +148,12 @@ def test_empty_kernel(dtype_x, device='cuda'):
 
 
 # generic test functions
-@reset_cache
 def _test_unary(dtype_x, expr, numpy_expr=None, device='cuda'):
     check_type_supported(dtype_x)  # early return if dtype_x is not supported
     SIZE = 128
     # define the kernel / launch-grid
 
-    @triton.jit(debug=True, cc=HIP_CC_ARCH)
+    @triton.jit()
     def kernel(Z, X, SIZE: tl.constexpr):
         off = tl.arange(0, SIZE)
         x = tl.load(X + off)
@@ -1259,6 +1258,7 @@ def test_permute(dtype_str, shape, perm, device='cuda'):
                           for col_a in [False]
                           for col_b in [False]
                           for dtype in ['int8', 'float16', 'float32']])
+@reset_cache
 def test_dot(M, N, K, num_warps, col_a, col_b, epilogue, allow_tf32, dtype, device='cuda'):
     capability = torch.cuda.get_device_capability()
 
@@ -1284,7 +1284,7 @@ def test_dot(M, N, K, num_warps, col_a, col_b, epilogue, allow_tf32, dtype, devi
     torch.backends.cuda.matmul.allow_tf32 = allow_tf32
 
     # triton kernel
-    @triton.jit
+    @triton.jit(debug=True, cc=HIP_CC_ARCH)
     def kernel(X, stride_xm, stride_xk,
                Y, stride_yk, stride_yn,
                W, stride_wn, stride_wl,
